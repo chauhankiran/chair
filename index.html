@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; media-src 'self' blob: file:; img-src 'self' data: blob:">
+  <title>Video Recorder & Player</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-container">
+    <div class="titlebar">
+      <div class="titlebar-drag"></div>
+      <div class="title">Video Recorder & Player</div>
+    </div>
+
+    <div class="main-content">
+      <div class="video-container">
+        <video id="videoPlayer" class="video-element hidden"></video>
+        <video id="videoPreview" class="video-element" autoplay muted></video>
+        <div id="placeholder" class="placeholder">
+          <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <polygon points="23 7 16 12 23 17 23 7"></polygon>
+            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+          </svg>
+          <p>Click "New Recording" to start recording<br>or "Open File" to play a video</p>
+        </div>
+        <div id="recordingIndicator" class="recording-indicator hidden">
+          <span class="recording-dot"></span>
+          <span id="recordingTime">00:00</span>
+        </div>
+      </div>
+
+      <div class="controls-container">
+        <div class="playback-controls hidden" id="playbackControls">
+          <div class="progress-bar" id="progressBar">
+            <div class="progress-fill" id="progressFill"></div>
+            <div class="progress-handle" id="progressHandle"></div>
+          </div>
+          <div class="time-display">
+            <span id="currentTime">0:00</span>
+            <span id="duration">0:00</span>
+          </div>
+        </div>
+
+        <div class="button-controls">
+          <button id="btnOpen" class="control-btn secondary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+            Open File
+          </button>
+
+          <button id="btnRecord" class="control-btn primary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="12" r="10"></circle>
+            </svg>
+            Camera
+          </button>
+
+          <button id="btnScreenRecord" class="control-btn primary">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+            Screen
+          </button>
+
+          <button id="btnPlay" class="control-btn secondary hidden">
+            <svg id="playIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <svg id="pauseIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" class="hidden">
+              <rect x="6" y="4" width="4" height="16"></rect>
+              <rect x="14" y="4" width="4" height="16"></rect>
+            </svg>
+            <span id="playBtnText">Play</span>
+          </button>
+
+          <button id="btnStop" class="control-btn danger hidden">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <rect x="4" y="4" width="16" height="16" rx="2"></rect>
+            </svg>
+            Stop
+          </button>
+
+          <button id="btnSave" class="control-btn success hidden">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+              <polyline points="17 21 17 13 7 13 7 21"></polyline>
+              <polyline points="7 3 7 8 15 8"></polyline>
+            </svg>
+            Save
+          </button>
+
+          <div class="volume-control" id="volumeControl">
+            <button id="btnMute" class="control-btn icon-only">
+              <svg id="volumeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              </svg>
+              <svg id="muteIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="hidden">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <line x1="23" y1="9" x2="17" y2="15"></line>
+                <line x1="17" y1="9" x2="23" y2="15"></line>
+              </svg>
+            </button>
+            <input type="range" id="volumeSlider" min="0" max="1" step="0.1" value="1">
+          </div>
+
+          <button id="btnFullscreen" class="control-btn icon-only">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <polyline points="9 21 3 21 3 15"></polyline>
+              <line x1="21" y1="3" x2="14" y2="10"></line>
+              <line x1="3" y1="21" x2="10" y2="14"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Source Picker Modal -->
+  <div id="sourcePickerModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Select Screen or Window</h2>
+        <button id="closeModal" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="sourceList" class="source-list"></div>
+      </div>
+      <div class="modal-footer">
+        <label class="audio-option">
+          <input type="checkbox" id="includeAudio" checked>
+          Include system audio
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
+</html>
